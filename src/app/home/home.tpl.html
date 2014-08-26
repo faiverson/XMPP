@@ -1,0 +1,57 @@
+<div class="jumbotron">
+  <h1>POC: CISCO jabber library</h1>
+  <p class="status">{{ status }}</p>
+</div>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<h3 class="panel-title">Client connection</h3>
+			</div>
+			<div class="panel-body">
+				<form class="navbar-form navbar-center" role="form">
+					<div class="form-group"> User
+					<input type="text" placeholder="Username" data-ng-model="user.username" class="form-control">
+					</div>
+					<div class="form-group"> Domain
+					<input type="text" placeholder="Domain" data-ng-model="user.domain" class="form-control">
+					</div>
+					<div class="form-group"> Password
+					<input type="password" data-ng-model="user.password" placeholder="password" name="password" class="form-control">
+					</div>
+					<button type="submit" data-ng-class="{ 'btn btn-success': status == 'Connected', 'btn btn-default': status != 'Connected' }" data-ng-model="connect" data-ng-click="connect()" ng-disabled="status == 'Connecting'" ng-disabled="status == 'Not Connected'">Connect</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6" ng-show="status == 'Connected'">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+				<h3 class="panel-title">Add Contact</h3>
+			</div>
+			<div class="panel-body">
+				<!-- <input type="text" class="btn btn-info" placeholder="Add contact" value="scolussi@fidelus.com" class="form-control" data-ng-click="addContact()" />
+				<input type="text" class="btn btn-info" placeholder="Add contact" value="aferrari@fidelus.com" class="form-control" data-ng-click="addContact()" /> -->
+				<div class="col-md-4"><input type="text" class="form-control input-sm" data-ng-model="contactName" /></div>
+				<div class="col-md-8">
+					<button type="submit" class="btn btn-info" data-ng-click="addContact()">Add</button>
+					<button type="submit" class="btn btn-info" data-ng-click="deleteContact()">Remove</button>
+					<!-- <button type="submit" class="btn btn-info" data-ng-click="sendPresence()">Set presence</button> -->
+				</div>
+			</div>
+		</div>
+		<!-- <ul class="list-group" ng-repeat="group in groups">
+			<li class="list-group-item">{{ group }}</li>
+		</ul> -->
+		<div class="panel panel-info">
+	      <div class="panel-heading">
+	        <h3 class="panel-title">Contact List</h3>
+	      </div>
+	      <div class="panel-body">
+	        <ul class="list-group">
+				<li class="list-group-item" ng-repeat="contact in contactList">{{ contact.name }}</li>
+			</ul>
+	      </div>
+	    </div>
+	</div>
+</div>
