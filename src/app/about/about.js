@@ -57,54 +57,7 @@ angular.module( 'ngBoilerplate.about', [
 		httpBindingURL: "https://im1.ciscowebex.com/http-bind",
 		successCallback: function() {
 			console.log('client connected');
-			jabberwerx.globalEvents.bind("iqSent", handleStanzaSent);
-			jabberwerx.globalEvents.bind("messageSent", handleStanzaSent);
-			jabberwerx.globalEvents.bind("presenceSent", handleStanzaSent);
-			jabberwerx.globalEvents.bind("subscriptionReceived", function(evt) {
-	//unsubscribe()
-	console.log("subscriptionReceived global");
-	var contact = evt.data.stanza.getFromJID();
-	$rootScope.roster.denySubscription(contact);
-});
-
-			$rootScope.client.entitySet.event('entityCreated', function() {
-				console.log('entityCreated');
-			});
-			$rootScope.client.entitySet.event('entityUpdated', function() {
-				console.log('entityUpdated');
-			});
-			$rootScope.client.entitySet.event('entityDestroyed', function() {
-				console.log('entityDestroyed');
-			});
-
-			$rootScope.roster.event("subscriptionReceived", function(evt) {
-				console.log("subscriptionReceived");
-				console.log(evt);
-			});
-
-			$rootScope.roster.event("unsubscriptionReceived", function(evt) {
-				console.log("unsubscriptionReceived");
-				console.log(evt);
-			});
-
-			$rootScope.roster.autoaccept = false;
-			$rootScope.roster.AUTOACCEPT_NEVER = true;
-			$rootScope.roster.autoaccept_in_domain = false;
-			$rootScope.roster.AUTOACCEPT_IN_ROSTER = false;
-			$rootScope.roster.autoremove = false;
-
-			safeApply($scope, function() {
-				$scope.status = 'Connected';
-				$rootScope.client.entitySet.each(function(entity) {
-					if (entity instanceof jabberwerx.Contact) {
-						$scope.contactList.push({
-							jid: entity.jid.getBareJIDString(),
-							name: entity.getDisplayName()
-						});
-						console.log($scope.contactList);
-					}
-				});
-			});
+			init();
 		},
 		errorCallback: function() {
 			console.log('client error in connection');
@@ -130,6 +83,65 @@ angular.module( 'ngBoilerplate.about', [
 	$rootScope.client = new jabberwerx.Client();
 	$rootScope.roster = $rootScope.client.controllers.roster || new jabberwerx.RosterController($rootScope.client);
 	$rootScope.quickcontact = $rootScope.client.controllers.quickContact || new jabberwerx.cisco.QuickContactController($rootScope.client);
+
+	function init() {
+		jabberwerx.globalEvents.bind("iqSent", handleStanzaSent);
+		jabberwerx.globalEvents.bind("messageSent", handleStanzaSent);
+		jabberwerx.globalEvents.bind("presenceSent", handleStanzaSent);
+		jabberwerx.globalEvents.bind("subscriptionReceived", function(evt) {
+			console.log("subscriptionReceived global");
+			var contact = evt.data.stanza.getFromJID();
+			//$rootScope.roster.denySubscription(contact);
+		});
+
+		jabberwerx.globalEvents.bind("unsubscriptionReceived", function(evt) {
+			console.log("unsubscriptionReceived global");
+			var contact = evt.data.stanza.getFromJID();
+			//$rootScope.roster.denySubscription(contact);
+		});
+
+		$rootScope.client.entitySet.event('entityCreated', function() {
+			console.log('entityCreated');
+		});
+
+		$rootScope.client.entitySet.event('entityUpdated', function() {
+			console.log('entityUpdated');
+		});
+
+		$rootScope.client.entitySet.event('entityDestroyed', function() {
+			console.log('entityDestroyed');
+		});
+
+		// @TODO: no funca che (ningun de estos eventos de mierda andan de esta manera
+		$rootScope.roster.event("subscriptionReceived", function(evt) {
+			console.log("subscriptionReceived");
+			console.log(evt);
+		});
+
+		$rootScope.roster.event("unsubscriptionReceived", function(evt) {
+			console.log("unsubscriptionReceived");
+			console.log(evt);
+		});
+
+		/*$rootScope.roster.autoaccept = false;
+		$rootScope.roster.AUTOACCEPT_NEVER = true;
+		$rootScope.roster.autoaccept_in_domain = false;
+		$rootScope.roster.AUTOACCEPT_IN_ROSTER = false;
+		$rootScope.roster.autoremove = false;*/
+
+		safeApply($scope, function() {
+			$scope.status = 'Connected';
+			$rootScope.client.entitySet.each(function(entity) {
+				if (entity instanceof jabberwerx.Contact) {
+					$scope.contactList.push({
+						jid: entity.jid.getBareJIDString(),
+						name: entity.getDisplayName()
+					});
+					console.log($scope.contactList);
+				}
+			});
+		});
+	}
 
 	function handleStanzaSent(evt) {
 		var stanza = evt.data;

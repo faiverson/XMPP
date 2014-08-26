@@ -84,10 +84,15 @@ angular.module( 'ngBoilerplate.home', [
 		jabberwerx.globalEvents.bind("messageSent", handleStanzaSent);
 		jabberwerx.globalEvents.bind("presenceSent", handleStanzaSent);
 		jabberwerx.globalEvents.bind("subscriptionReceived", function(evt) {
-			//unsubscribe()
 			console.log("subscriptionReceived global");
 			var contact = evt.data.stanza.getFromJID();
-			$rootScope.roster.denySubscription(contact);
+			//$rootScope.roster.denySubscription(contact);
+		});
+
+		jabberwerx.globalEvents.bind("unsubscriptionReceived", function(evt) {
+			console.log("unsubscriptionReceived global");
+			var contact = evt.data.stanza.getFromJID();
+			//$rootScope.roster.denySubscription(contact);
 		});
 
 		$rootScope.client.entitySet.event('entityCreated', function() {
@@ -113,11 +118,11 @@ angular.module( 'ngBoilerplate.home', [
 			console.log(evt);
 		});
 
-		$rootScope.roster.autoaccept = false;
+		/*$rootScope.roster.autoaccept = false;
 		$rootScope.roster.AUTOACCEPT_NEVER = true;
 		$rootScope.roster.autoaccept_in_domain = false;
 		$rootScope.roster.AUTOACCEPT_IN_ROSTER = false;
-		$rootScope.roster.autoremove = false;
+		$rootScope.roster.autoremove = false;*/
 
 		safeApply($scope, function() {
 			$scope.status = 'Connected';
@@ -146,10 +151,6 @@ angular.module( 'ngBoilerplate.home', [
 		var bareJID = $scope.user.username + '@' + $scope.user.domain;
 		var password = $scope.user.password;
 		$rootScope.client.connect(bareJID, password, connectArgs);
-	};
-
-	$scope.newContact = function(id, info) {
-		$scope.contactList[id] = info;
 	};
 
 	$scope.addContact = function() {
