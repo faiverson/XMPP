@@ -3,3 +3,11 @@
 build/
 bin/
 node_modules/
+/vendor/bootstrap
+/vendor/angular-ui-router
+/vendor/angular-mocks
+/vendor/angular-bootstrap
+/vendor/angular-animate
+/vendor/angular
+/vendor/jquery
+/vendor/angular-resource
