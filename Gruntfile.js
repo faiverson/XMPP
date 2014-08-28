@@ -39,55 +39,55 @@ module.exports = function ( grunt ) {
      * pairs are evaluated based on this very configuration object.
      */
     meta: {
-      banner:
-        '/**\n' +
-        ' * <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
-        ' * <%= pkg.homepage %>\n' +
-        ' *\n' +
-        ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
-        ' * Licensed <%= pkg.licenses.type %> <<%= pkg.licenses.url %>>\n' +
-        ' */\n'
+        banner:
+            '/**\n' +
+            ' * <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+            ' * <%= pkg.homepage %>\n' +
+            ' *\n' +
+            ' * Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
+            ' * Licensed <%= pkg.licenses.type %> <<%= pkg.licenses.url %>>\n' +
+            ' */\n'
     },
 
     /**
      * Creates a changelog on a new version.
      */
     changelog: {
-      options: {
-        dest: 'CHANGELOG.md',
-        template: 'changelog.tpl'
-      }
+        options: {
+            dest: 'CHANGELOG.md',
+            template: 'changelog.tpl'
+        }
     },
 
     /**
      * Increments the version number, etc.
      */
     bump: {
-      options: {
-        files: [
-          "package.json",
-          "bower.json"
-        ],
-        commit: false,
-        commitMessage: 'chore(release): v%VERSION%',
-        commitFiles: [
-          "package.json",
-          "client/bower.json"
-        ],
-        createTag: false,
-        tagName: 'v%VERSION%',
-        tagMessage: 'Version %VERSION%',
-        push: false,
-        pushTo: 'origin'
-      }
+        options: {
+            files: [
+                "package.json",
+                "bower.json"
+            ],
+            commit: false,
+            commitMessage: 'chore(release): v%VERSION%',
+            commitFiles: [
+                "package.json",
+                "client/bower.json"
+            ],
+            createTag: false,
+            tagName: 'v%VERSION%',
+            tagMessage: 'Version %VERSION%',
+            push: false,
+            pushTo: 'origin'
+        }
     },
 
     /**
      * The directories to delete when `grunt clean` is executed.
      */
     clean: [
-      '<%= build_dir %>',
-      '<%= compile_dir %>'
+        '<%= build_dir %>',
+        '<%= compile_dir %>'
     ],
 
     /**
@@ -96,92 +96,91 @@ module.exports = function ( grunt ) {
      * `build_dir`, and then to copy the assets to `compile_dir`.
      */
     copy: {
-      build_app_assets: {
-        files: [
-          {
-            src: [ '**' ],
-            dest: '<%= build_dir %>/assets/',
-            cwd: 'src/assets',
-            expand: true
-          }
-       ]
-      },
-      build_vendor_assets: {
-        files: [
-          {
-            src: [ '<%= vendor_files.assets %>' ],
-            dest: '<%= build_dir %>/assets/',
-            cwd: '.',
-            expand: true,
-            flatten: true
-          }
-       ]
-      },
-      build_appjs: {
-        files: [
-          {
-            src: [ '<%= app_files.js %>' ],
-            dest: '<%= build_dir %>/',
-            cwd: '.',
-            expand: true
-          }
-        ]
-      },
-      build_vendorjs: {
-        files: [
-          {
-            src: [ '<%= vendor_files.js %>' ],
-            dest: '<%= build_dir %>/',
-            cwd: '.',
-            expand: true
-          }
-        ]
-      },
-      compile_assets: {
-        files: [
-          {
-            src: [ '**' ],
-            dest: '<%= compile_dir %>/assets',
-            cwd: '<%= build_dir %>/assets',
-            expand: true
-          }
-        ]
-      }
+        build_app_assets: {
+            files: [
+                {
+                src: [ '**' ],
+                dest: '<%= build_dir %>/assets/',
+                cwd: 'src/assets',
+                expand: true
+                }
+            ]
+        },
+        build_vendor_assets: {
+            files: [
+                {
+                src: [ '<%= vendor_files.assets %>' ],
+                dest: '<%= build_dir %>/assets/',
+                cwd: '.',
+                expand: true
+                }
+            ]
+        },
+        build_appjs: {
+            files: [
+                {
+                    src: [ '<%= app_files.js %>' ],
+                    dest: '<%= build_dir %>/',
+                    cwd: '.',
+                    expand: true
+                }
+            ]
+        },
+        build_vendorjs: {
+            files: [
+                {
+                    src: [ '<%= vendor_files.js %>' ],
+                    dest: '<%= build_dir %>/',
+                    cwd: '.',
+                    expand: true
+                }
+            ]
+        },
+        compile_assets: {
+            files: [
+                {
+                    src: [ '**' ],
+                    dest: '<%= compile_dir %>/assets',
+                    cwd: '<%= build_dir %>/assets',
+                    expand: true
+                }
+            ]
+        }
     },
 
     /**
      * `grunt concat` concatenates multiple source files into a single file.
      */
     concat: {
-      /**
-       * The `build_css` target concatenates compiled CSS and vendor CSS
-       * together.
-       */
-      build_css: {
-        src: [
-          '<%= vendor_files.css %>',
-          '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css'
-        ],
-        dest: '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css'
-      },
-      /**
-       * The `compile_js` target is the concatenation of our application source
-       * code and all specified vendor source code into a single file.
-       */
-      compile_js: {
-        options: {
-          banner: '<%= meta.banner %>'
+        /**
+        * The `build_css` target concatenates compiled CSS and vendor CSS
+        * together.
+        */
+        build_css: {
+            src: [
+                '<%= vendor_files.css %>',
+                '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css'
+            ],
+            dest: '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css'
         },
-        src: [
-          '<%= vendor_files.js %>',
-          'module.prefix',
-          '<%= build_dir %>/src/**/*.js',
-          '<%= html2js.app.dest %>',
-          '<%= html2js.common.dest %>',
-          'module.suffix'
-        ],
-        dest: '<%= compile_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.js'
-      }
+        /**
+        * The `compile_js` target is the concatenation of our application source
+        * code and all specified vendor source code into a single file.
+        */
+        compile_js: {
+            options: {
+                banner: '<%= meta.banner %>'
+            },
+            src: [
+                '<%= vendor_files.js %>',
+                'module.prefix',
+                '<%= build_dir %>/src/**/*.js',
+                '<%= html2js.app.dest %>',
+                '<%= html2js.common.dest %>',
+                'module.suffix'
+            ],
+            dest: '<%= compile_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.js'
+        }
     },
 
     /**
@@ -189,52 +188,52 @@ module.exports = function ( grunt ) {
      * to code without the array syntax.
      */
     ngmin: {
-      compile: {
-        files: [
-          {
-            src: [ '<%= app_files.js %>' ],
-            cwd: '<%= build_dir %>',
-            dest: '<%= build_dir %>',
-            expand: true
-          }
-        ]
-      }
+        compile: {
+            files: [
+                {
+                    src: [ '<%= app_files.js %>' ],
+                    cwd: '<%= build_dir %>',
+                    dest: '<%= build_dir %>',
+                    expand: true
+                }
+            ]
+        }
     },
 
     /**
      * Minify the sources!
      */
     uglify: {
-      compile: {
+        compile: {
         options: {
-          banner: '<%= meta.banner %>'
+        banner: '<%= meta.banner %>'
         },
         files: {
-          '<%= concat.compile_js.dest %>': '<%= concat.compile_js.dest %>'
+        '<%= concat.compile_js.dest %>': '<%= concat.compile_js.dest %>'
         }
-      }
+        }
     },
 
     /**
-     * `grunt-contrib-less` handles our LESS compilation and uglification automatically.
-     * Only our `main.less` file is included in compilation; all other files
-     * must be imported from this file.
-     */
+    * `grunt-contrib-less` handles our LESS compilation and uglification automatically.
+    * Only our `main.less` file is included in compilation; all other files
+    * must be imported from this file.
+    */
     less: {
-      build: {
+        build: {
         files: {
-          '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css': '<%= app_files.less %>'
+        '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css': '<%= app_files.less %>'
         }
-      },
-      compile: {
+        },
+        compile: {
         files: {
-          '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css': '<%= app_files.less %>'
+        '<%= build_dir %>/assets/<%= pkg.name %>-<%= pkg.version %>.css': '<%= app_files.less %>'
         },
         options: {
-          cleancss: true,
-          compress: true
+        cleancss: true,
+        compress: true
         }
-      }
+        }
     },
 
     /**
@@ -476,10 +475,10 @@ module.exports = function ( grunt ) {
    * `delta`) and then add a new task called `watch` that does a clean build
    * before watching for changes.
    */
-  //grunt.renameTask( 'watch', 'delta' );
+  grunt.renameTask( 'watch', 'delta' );
   //grunt.registerTask( 'watch', [ 'build', 'karma:unit', 'delta' ] );
-  //grunt.registerTask( 'watch', [ 'build', 'compile', 'delta' ] );
-  grunt.registerTask( 'watch', [ 'default' ] );
+  grunt.registerTask( 'watch', [ 'build', 'delta' ] );
+  //grunt.registerTask( 'watch', [ 'default' ] );
 
   /**
    * The default task is to build and compile.

@@ -57,7 +57,11 @@ angular.module( 'ngBoilerplate.about', [
 		httpBindingURL: "https://im1.ciscowebex.com/http-bind",
 		successCallback: function() {
 			console.log('client connected');
+			startEvents();
 			init();
+			safeApply($scope, function() {
+				$scope.me.name = $scope.user.username;
+			});
 		},
 		errorCallback: function() {
 			console.log('client error in connection');
@@ -66,8 +70,16 @@ angular.module( 'ngBoilerplate.about', [
 	};
 
 	$scope.status = 'Not Connected';
+	$scope.customMessage = '';
 	$scope.contactList = [];
 	$scope.groups = [];
+
+	$scope.me = {
+		name: '',
+		status: '',
+		message: ''
+	};
+
 	$scope.user = {
 		username: 'luseglio',
 		domain: 'fidelus.com',
@@ -84,79 +96,44 @@ angular.module( 'ngBoilerplate.about', [
 	$rootScope.roster = $rootScope.client.controllers.roster || new jabberwerx.RosterController($rootScope.client);
 	$rootScope.quickcontact = $rootScope.client.controllers.quickContact || new jabberwerx.cisco.QuickContactController($rootScope.client);
 
-	function init() {
-		jabberwerx.globalEvents.bind("iqSent", handleStanzaSent);
-		jabberwerx.globalEvents.bind("messageSent", handleStanzaSent);
-		jabberwerx.globalEvents.bind("presenceSent", handleStanzaSent);
-		jabberwerx.globalEvents.bind("subscriptionReceived", function(evt) {
-			console.log("subscriptionReceived global");
-			var contact = evt.data.stanza.getFromJID();
-			//$rootScope.roster.denySubscription(contact);
-		});
-
-		jabberwerx.globalEvents.bind("unsubscriptionReceived", function(evt) {
-			console.log("unsubscriptionReceived global");
-			var contact = evt.data.stanza.getFromJID();
-			//$rootScope.roster.denySubscription(contact);
-		});
-
-		$rootScope.client.entitySet.event('entityCreated', function() {
-			console.log('entityCreated');
-		});
-
-		$rootScope.client.entitySet.event('entityUpdated', function() {
-			console.log('entityUpdated');
-		});
-
-		$rootScope.client.entitySet.event('entityDestroyed', function() {
-			console.log('entityDestroyed');
-		});
-
-		// @TODO: no funca che (ningun de estos eventos de mierda andan de esta manera
-		$rootScope.roster.event("subscriptionReceived", function(evt) {
-			console.log("subscriptionReceived");
-			console.log(evt);
-		});
-
-		$rootScope.roster.event("unsubscriptionReceived", function(evt) {
-			console.log("unsubscriptionReceived");
-			console.log(evt);
-		});
-
-		/*$rootScope.roster.autoaccept = false;
-		$rootScope.roster.AUTOACCEPT_NEVER = true;
+function init() {
+		$rootScope.roster.autoaccept = $rootScope.roster.AUTOACCEPT_NEVER;
 		$rootScope.roster.autoaccept_in_domain = false;
-		$rootScope.roster.AUTOACCEPT_IN_ROSTER = false;
-		$rootScope.roster.autoremove = false;*/
+		$rootScope.roster.autoremove = false;
+		$rootScope.roster.defaultGroup = "Fidelus";
 
 		safeApply($scope, function() {
 			$scope.status = 'Connected';
-			$rootScope.client.entitySet.each(function(entity) {
-				if (entity instanceof jabberwerx.Contact) {
-					$scope.contactList.push({
-						jid: entity.jid.getBareJIDString(),
-						name: entity.getDisplayName()
-					});
-					console.log($scope.contactList);
-				}
-			});
+			$scope.refreshList();
 		});
 	}
 
 	function handleStanzaSent(evt) {
 		var stanza = evt.data;
-		console.log(stanza.pType(), "Call sent: " + stanza.xml());
+		switch(stanza.pType()) {
+			default:
+				console.log(stanza.xml());
+		}
 	}
+
+	$scope.refreshList = function() {
+		$scope.contactList = [];
+		$rootScope.client.entitySet.each(function(entity) {
+			if (entity instanceof jabberwerx.Contact) {
+				$scope.contactList.push({
+					jid: entity.jid.getBareJIDString(),
+					name: entity.getDisplayName()
+				});
+				console.log($scope.contactList);
+			}
+		});
+	};
 
 	$scope.connect = function() {
 		$scope.status = 'Connecting';
 		var bareJID = $scope.user.username + '@' + $scope.user.domain;
 		var password = $scope.user.password;
 		$rootScope.client.connect(bareJID, password, connectArgs);
-	};
-
-	$scope.newContact = function(id, info) {
-		$scope.contactList[id] = info;
 	};
 
 	$scope.addContact = function() {
@@ -200,8 +177,69 @@ angular.module( 'ngBoilerplate.about', [
 		});
 	};
 
-	$scope.sendPresence = function() {
-		$rootScope.client.sendPresence('away', 'In a WebEx Meeting');
+	$scope.sendPresence = function(type) {
+		console.log('sendPresence: ' + type + ' message: ' + $scope.customMessage);
+		$scope.me.status = type;
+		$scope.me.message = $scope.customMessage !== '' ? ' - ' + $scope.customMessage : '';
+		$rootScope.client.sendPresence(type, $scope.customMessage);
 	};
+
+	function startEvents() {
+		jabberwerx.globalEvents.bind("iqSent", handleStanzaSent);
+		jabberwerx.globalEvents.bind("messageSent", handleStanzaSent);
+		jabberwerx.globalEvents.bind("presenceSent", handleStanzaSent);
+
+		jabberwerx.globalEvents.bind("resourcePresenceChanged", function(evt) {
+			console.log("subscriptionReceived global");
+		});
+
+		jabberwerx.globalEvents.bind("primaryPresenceChanged", function(evt) {
+			console.log("primaryPresenceChanged global");
+			// the client user changes the status
+			if($rootScope.client.connectedUser._guid === evt.source._guid){
+				$scope.changeStatus(evt.data.presence);
+			}
+		});
+
+		jabberwerx.globalEvents.bind("subscriptionReceived", function(evt) {
+			console.log("subscriptionReceived global");
+
+			var contact = evt.data.stanza.getFromJID();
+			//$rootScope.roster.denySubscription(contact);
+		});
+
+		jabberwerx.globalEvents.bind("unsubscriptionReceived", function(evt) {
+			console.log("unsubscriptionReceived global");
+			var contact = evt.data.stanza.getFromJID();
+			//$rootScope.roster.denySubscription(contact);
+		});
+
+		$rootScope.client.event('presenceReceived', function() {
+			console.log('presenceReceived');
+		});
+
+		$rootScope.client.entitySet.event('entityCreated', function() {
+			console.log('entityCreated');
+		});
+
+		$rootScope.client.entitySet.event('entityUpdated', function() {
+			console.log('entityUpdated');
+		});
+
+		$rootScope.client.entitySet.event('entityDestroyed', function() {
+			console.log('entityDestroyed');
+		});
+
+		// @TODO: are not working at all, only global events are working
+		$rootScope.roster.event("subscriptionReceived", function(evt) {
+			console.log("subscriptionReceived");
+			console.log(evt);
+		});
+
+		$rootScope.roster.event("unsubscriptionReceived", function(evt) {
+			console.log("unsubscriptionReceived");
+			console.log(evt);
+		});
+	}
 
 }]);
