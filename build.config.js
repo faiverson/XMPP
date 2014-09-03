@@ -77,6 +77,7 @@ module.exports = {
 			'vendor/bootstrap/dist/js/bootstrap.min.js',
 			'vendor/caxl/jabberwerx.js',
 			'vendor/caxl/jabberwerx.cisco.js',
+			'node_modules/angularjs-scope.safeapply/src/Scope.SafeApply.js',
 			'vendor/placeholders/angular-placeholders-0.0.1-SNAPSHOT.min.js'
 		],
 		css: [

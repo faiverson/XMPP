@@ -3,6 +3,7 @@ angular.module( 'ngBoilerplate', [
   'templates-common',
   'ngBoilerplate.home',
   'ngBoilerplate.about',
+  'ngBoilerplate.chat',
   'ui.router'
 ])
 
@@ -10,7 +11,7 @@ angular.module( 'ngBoilerplate', [
   $urlRouterProvider.otherwise( '/home' );
 })
 
-.run( function run () {
+.run(function run() {
 })
 
 .controller( 'AppCtrl', function AppCtrl ( $scope, $location ) {
@@ -19,7 +20,4 @@ angular.module( 'ngBoilerplate', [
       $scope.pageTitle = toState.data.pageTitle + ' | POC' ;
     }
   });
-})
-
-;
-
+});

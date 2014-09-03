@@ -1,57 +1,22 @@
-/**
- * Each section of the site has its own module. It probably also has
- * submodules, though this boilerplate is too simple to demonstrate it. Within
- * `src/app/home`, however, could exist several additional folders representing
- * additional modules that would then be listed as dependencies of this one.
- * For example, a `note` section could have the submodules `note.create`,
- * `note.delete`, `note.edit`, etc.
- *
- * Regardless, so long as dependencies are managed correctly, the build process
- * will automatically take take of the rest.
- *
- * The dependencies block here is also where component dependencies should be
- * specified, as shown below.
- */
 angular.module( 'ngBoilerplate.home', [
-  'ui.router'
+	'ui.router',
+	'Scope.safeApply'
 ])
 
-/**
- * Each section or module of the site can also have its own routes. AngularJS
- * will handle ensuring they are all available at run-time, but splitting it
- * this way makes each module more "self-contained".
- */
 .config(function config( $stateProvider ) {
-  $stateProvider.state( 'home', {
-	url: '/home',
-	views: {
-		"main": {
-			controller: 'HomeCtrl',
-			templateUrl: 'home/home.tpl.html'
-		}
-	},
-	data:{ pageTitle: 'Home' }
-  });
+	$stateProvider.state( 'home', {
+		url: '/home',
+		views: {
+			"main": {
+				controller: 'HomeCtrl',
+				templateUrl: 'home/home.tpl.html'
+			}
+		},
+		data:{ pageTitle: 'Home' }
+	});
 })
 
-.factory('safeApply', [function($rootScope) {
-	return function($scope, fn) {
-		var phase = $scope.$root.$$phase;
-		if(phase == '$apply' || phase == '$digest') {
-			if (fn) {
-				$scope.$eval(fn);
-			}
-		} else {
-			if (fn) {
-				$scope.$apply(fn);
-			} else {
-				$scope.$apply();
-			}
-		}
-	};
-}])
-
-.controller('HomeCtrl', ['safeApply', '$scope', '$rootScope', '$filter', function HomeController(safeApply, $scope, $rootScope, $filter) {
+.controller('HomeCtrl', ['$scope', '$rootScope', '$filter', function HomeController($scope, $rootScope, $filter) {
 
 	var connectArgs = {
 		httpBindingURL: "https://im1.ciscowebex.com/http-bind",
@@ -59,9 +24,18 @@ angular.module( 'ngBoilerplate.home', [
 			console.log('client connected');
 			startEvents();
 			init();
-			safeApply($scope, function() {
+			$scope.$safeApply($scope, function() {
 				$scope.me.name = $scope.user.username;
 			});
+
+			$rootScope.client.event("presenceReceived", function() {
+				console.log("presencereceived client");
+			});
+			var notifier =  $rootScope.client.applyEvent("caramba");
+			var cb = function(eventObject) {
+				console.log("subscriptionReceived connectedUser");
+			};
+			notifier.bind(cb);
 		},
 		errorCallback: function() {
 			console.log('client error in connection');
@@ -97,7 +71,7 @@ angular.module( 'ngBoilerplate.home', [
 		$rootScope.roster.autoremove = false;
 		$rootScope.roster.defaultGroup = "Fidelus";
 
-		safeApply($scope, function() {
+		$scope.$safeApply($scope, function() {
 			$scope.status = 'Connected';
 			$scope.refreshList();
 		});
@@ -134,7 +108,7 @@ angular.module( 'ngBoilerplate.home', [
 	$scope.addContact = function() {
 		$rootScope.roster.updateContact($scope.contactName, $scope.contactName, ['fidelus'], function(errorStanza) {
 			console.log('addContact callback');
-			safeApply($scope, function() {
+			$scope.$safeApply($scope, function() {
 				$rootScope.client.entitySet.each(function(entity) {
 					var jid;
 					if (entity instanceof jabberwerx.Contact) {
@@ -155,7 +129,7 @@ angular.module( 'ngBoilerplate.home', [
 	$scope.deleteContact = function() {
 		$rootScope.roster.deleteContact($scope.contactName, function() {
 			console.log('deleteContact callback');
-			safeApply($scope, function() {
+			$scope.$safeApply($scope, function() {
 				//var index = $filter('filter')($scope.contactList, { jid: $scope.contactName})[0] - 1;
 				var index = [];
 				angular.forEach($scope.contactList, function(object, key) {
@@ -181,7 +155,7 @@ angular.module( 'ngBoilerplate.home', [
 
 	$scope.changeStatus = function(presence) {
 		if(presence instanceof jabberwerx.Presence) {
-			safeApply($scope, function() {
+			$scope.$safeApply($scope, function() {
 				$scope.me = {
 					name: $scope.me.name,
 					status: presence.getType()  ? presence.getType() : $scope.me.status,
@@ -224,10 +198,6 @@ angular.module( 'ngBoilerplate.home', [
 		jabberwerx.globalEvents.bind("presenceReceived", function(evt) {
 			console.log("presenceReceived global");
 		});
-
-		/*jabberwerx.globalEvents.bind("presenceReceived", function(evt) {
-			console.log("presenceReceived global");
-		});*/
 
 		jabberwerx.globalEvents.bind("entityAdded", function(evt) {
 			console.log("entityAdded global");
