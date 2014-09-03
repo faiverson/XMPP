@@ -48,7 +48,7 @@ angular.module( 'ngBoilerplate.about', [
 	$scope.user = {
 		username: 'luseglio',
 		domain: 'fidelus.com',
-		password: 'Santex01'
+		password: ''
 	};
 	/*$scope.user = {
 		username: 'scolussi',

@@ -21,7 +21,7 @@ angular.module( 'ngBoilerplate.chat', [
 	$scope.user = {
 		username: 'ftorres',
 		domain: 'akkadianlabs.com',
-		password: 'FTorr3s'
+		password: ''
 	};
 	/*
 		username: 'luseglio',

@@ -57,7 +57,7 @@ angular.module( 'ngBoilerplate.home', [
 	$scope.user = {
 		username: 'ftorres',
 		domain: 'akkadianlabs.com',
-		password: 'FTorr3s'
+		password: ''
 	};
 	$scope.contactName = 'luseglio@fidelus.com';
 
